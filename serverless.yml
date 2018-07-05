@@ -3,33 +3,22 @@ service: es-cleanup-lambda
 
 provider:
   name: aws
-  stage: prod
-  region: eu-west-1
-  profile: ${env:AWS_DEFAULT_PROFILE}
-  deploymentBucket:
-    name: ${env:S3_DEPLOYMENT_BUCKET}
   environment:
-    es_endpoint: search-es-demo-zveqnhnhjqm5flntemgmx5iuya.eu-west-1.es.amazonaws.com
+    es_endpoint: ${file(./environment.${opt:stage, self:provider.stage}.yml):es_endpoint}
     index: all
-    delete_after: "7"
+    delete_after: "60"
     index_format: "%Y.%m.%d"
-  stackTags: # Optional CF stack tags
-    Owner: aws@cloudreach.com
-    Purpose: es-cleanup
-    Environment: PROD
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "es:*"
-      Resource: "arn:aws:es:eu-west-1:123456789012:domain/es-demo/*"
-      # you must specify the full ARN  of the AWS ES Domain
-
+      Resource: ${file(./environment.${opt:stage, self:provider.stage}.yml):es_arn}
 
 
 functions:
   es-cleanup-lambda:
     handler: es-cleanup.lambda_handler
-    name: es-cleanup-lambda
+    name: es-cleanup-lambda-${opt:stage, self:provider.stage}
     description: ES old index removal
     runtime: python2.7
     memorySize: "128"
@@ -47,4 +36,4 @@ functions:
       - schedule: cron(0 1 * * ? *)
 
 resources:
-  Description: "AWS Lambda: Elasticsearch Index Cleanup"      
+  Description: "AWS Lambda: Elasticsearch Index Cleanup"

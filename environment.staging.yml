@@ -1,0 +1,3 @@
+---
+es_endpoint: search-gc-logs-staging-gy4bwy4kzdbcalh7lt7g474rum.us-east-1.es.amazonaws.com
+es_arn: arn:aws:es:us-east-1:457398059321:domain/gc-logs-staging/*
